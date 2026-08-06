@@ -391,7 +391,7 @@ def main(page: ft.Page):
     mudar_tela("/")
 
 if __name__ == "__main__":
-ft.app(target=main, port=8550, host="0.0.0.0")
+    ft.app(target=main, port=8550, host="0.0.0.0")
 
 
 
