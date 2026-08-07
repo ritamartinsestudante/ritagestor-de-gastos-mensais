@@ -1,4 +1,3 @@
-
 from datetime import datetime
 import sqlite3
 import pandas as pd
@@ -26,7 +25,8 @@ conn, cursor = conectar_bd()
 USUARIOS_PERMITIDOS = {
     "rita": "1234",
     "cliente1": "senha2026",
-    "cliente2": "gastos10"
+    "cliente2": "gastos10",
+    "hotmart": "teste2026"
 }
 
 CATEGORIAS_ENTRADA = ["Pagamento", "Trabalho", "Outros"]
@@ -38,7 +38,7 @@ CORES_CATEGORIAS = {
     "Combustível": "#AB47BC",    # Roxo
     "Gastos da casa": "#26A69A",  # Verde água
     "Supérfluo": "#EC407A",       # Rosa choque
-    "Passeio": "#42A5F5",         # Azul claro
+    "Passeio": "#42A5F5",        # Azul claro
     "Outros": "#78909C",          # Cinza azulado
     "Pagamento": "#66BB6A",       # Verde claro (Entrada)
     "Trabalho": "#26A69A"         # Verde (Entrada)
@@ -71,8 +71,8 @@ def main(page: ft.Page):
             titulo = ft.Text("Gestor de Gastos", size=20, weight=ft.FontWeight.W_600, color="pink")
             subtitulo = ft.Text("Faça login para continuar", size=13, color="#AAAAAA")
             
-            txt_usuario = ft.TextField(label="Usuário", value="rita", border_radius=10, text_size=14, height=50)
-            txt_senha = ft.TextField(label="Senha", value="1234", password=True, can_reveal_password=True, border_radius=10, text_size=14, height=50)
+            txt_usuario = ft.TextField(label="Usuário", border_radius=10, text_size=14, height=50)
+            txt_senha = ft.TextField(label="Senha", password=True, can_reveal_password=True, border_radius=10, text_size=14, height=50)
             lbl_erro = ft.Text(color="red", size=12)
 
             def fazer_login(e):
@@ -392,6 +392,7 @@ def main(page: ft.Page):
 
 if __name__ == "__main__":
     ft.app(target=main, port=8550, host="0.0.0.0")
+
 
 
 
