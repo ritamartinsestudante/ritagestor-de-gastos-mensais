@@ -29,19 +29,26 @@ USUARIOS_PERMITIDOS = {
     "hotmart": "teste2026"
 }
 
-CATEGORIAS_ENTRADA = ["Pagamento", "Trabalho", "Outros"]
-CATEGORIAS_SAIDA = ["Alimentação", "Combustível", "Gastos da casa", "Supérfluo", "Passeio", "Outros"]
+# Categorias aprimoradas solicitadas
+CATEGORIAS_ENTRADA = ["Salário", "Renda Extra", "Pagamento", "Trabalho", "Outros"]
+CATEGORIAS_SAIDA = ["Mercado", "Contas de casa", "Combustível", "Alimentação", "Supérfluo", "Passeio", "Outros"]
 
-# Cores distintas e elegantes para cada categoria de saída
+# Cores distintas e impactantes para cada categoria
 CORES_CATEGORIAS = {
-    "Alimentação": "#FF7043",    # Laranja suave
-    "Combustível": "#AB47BC",    # Roxo
-    "Gastos da casa": "#26A69A",  # Verde água
-    "Supérfluo": "#EC407A",       # Rosa choque
-    "Passeio": "#42A5F5",        # Azul claro
-    "Outros": "#78909C",          # Cinza azulado
-    "Pagamento": "#66BB6A",       # Verde claro (Entrada)
-    "Trabalho": "#26A69A"         # Verde (Entrada)
+    # Saídas (tons quentes e marcantes)
+    "Mercado": "#E53935",          # Vermelho forte
+    "Contas de casa": "#FB8C00",   # Laranja escuro
+    "Combustível": "#8E24AA",      # Roxo forte
+    "Alimentação": "#FF7043",      # Laranja suave
+    "Supérfluo": "#EC407A",        # Rosa choque
+    "Passeio": "#42A5F5",          # Azul claro
+    "Outros": "#78909C",           # Cinza azulado
+    
+    # Entradas (tons esverdeados)
+    "Salário": "#2E7D32",          # Verde escuro forte
+    "Renda Extra": "#43A047",      # Verde vibrante
+    "Pagamento": "#66BB6A",        # Verde claro
+    "Trabalho": "#26A69A"          # Verde água
 }
 
 def main(page: ft.Page):
@@ -132,12 +139,12 @@ def main(page: ft.Page):
             editando_id = ft.Ref[int]()
             editando_id.current = None
 
-            txt_desc = ft.TextField(label="Descrição (Ex: Supermercado)", border_radius=10, text_size=14, height=50)
+            txt_desc = ft.TextField(label="Descrição (Ex: Compras do mês)", border_radius=10, text_size=14, height=50)
             
             dd_cat = ft.Dropdown(
                 label="Categoria", 
                 options=[ft.dropdown.Option(c) for c in CATEGORIAS_SAIDA], 
-                value="Alimentação", 
+                value="Mercado", 
                 border_radius=10,
                 text_size=14
             )
@@ -153,10 +160,10 @@ def main(page: ft.Page):
             def ajustar_cats_tipo(e):
                 if dd_tipo.value == "Entrada":
                     dd_cat.options = [ft.dropdown.Option(c) for c in CATEGORIAS_ENTRADA]
-                    dd_cat.value = "Pagamento"
+                    dd_cat.value = "Salário"
                 else:
                     dd_cat.options = [ft.dropdown.Option(c) for c in CATEGORIAS_SAIDA]
-                    dd_cat.value = "Alimentação"
+                    dd_cat.value = "Mercado"
                 page.update()
 
             btn_tipo_filtro = ft.TextButton(content=ft.Text("🔄 Atualizar Categorias pelo Tipo", size=11, color="pink"), on_click=ajustar_cats_tipo)
@@ -214,35 +221,41 @@ def main(page: ft.Page):
                 height=45
             )
 
-            # Função para abrir detalhes ao clicar numa categoria do resumo
+            # Função para abrir detalhes completos ao clicar em uma categoria (Ex: Mercado, Combustível)
             def abrir_detalhes_categoria(tipo_cat, nome_cat):
                 df_filtrado = df[(df["Tipo"] == tipo_cat) & (df["Categoria"] == nome_cat)]
                 
                 itens_lista = []
                 for _, r in df_filtrado.iterrows():
-                    cor_val = "green" if tipo_cat == "Entrada" else "red"
+                    cor_val = "green" if tipo_cat == "Entrada" else "#E53935"
                     itens_lista.append(
                         ft.Container(
                             content=ft.Row([
                                 ft.Column([
-                                    ft.Text(f"📅 {r['Data']} - ID #{r['id']}", size=11, color="#AAAAAA"),
+                                    ft.Text(f"📅 {r['Data']} (ID #{r['id']})", size=11, color="#AAAAAA"),
                                     ft.Text(f"{r['Descrição']}", size=13, weight=ft.FontWeight.W_500, color="white")
                                 ], spacing=2),
                                 ft.Text(f"R$ {r['Valor']:.2f}", size=13, weight=ft.FontWeight.BOLD, color=cor_val)
                             ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
-                            padding=8,
+                            padding=10,
                             bgcolor="#222222",
                             border_radius=8,
-                            margin=ft.margin.only(bottom=5)
+                            margin=ft.margin.only(bottom=6)
                         )
                     )
 
+                total_cat = df_filtrado["Valor"].sum()
+
                 dlg = ft.AlertDialog(
-                    title=ft.Text(f"Detalhes: {nome_cat} ({tipo_cat})", size=15, weight=ft.FontWeight.BOLD, color="pink"),
+                    title=ft.Text(f"{nome_cat} ({tipo_cat})", size=16, weight=ft.FontWeight.BOLD, color="pink"),
                     content=ft.Container(
-                        content=ft.Column(itens_lista, scroll=ft.ScrollMode.AUTO, tight=True),
-                        width=320,
-                        height=300
+                        content=ft.Column([
+                            ft.Text(f"Total gasto/recebido: R$ {total_cat:.2f}", size=13, weight=ft.FontWeight.BOLD, color="white"),
+                            ft.Divider(height=10),
+                            ft.Column(itens_lista, scroll=ft.ScrollMode.AUTO, tight=True)
+                        ], tight=True),
+                        width=340,
+                        height=350
                     ),
                     actions=[ft.TextButton("Fechar", on_click=lambda e: page.close(dlg))]
                 )
@@ -265,14 +278,14 @@ def main(page: ft.Page):
                     ft.Container(
                         content=ft.Column([
                             ft.Text("GASTOS", size=10, color="#AAAAAA", weight=ft.FontWeight.BOLD),
-                            ft.Text(f"R$ {total_saidas:.2f}", size=12, color="red", weight=ft.FontWeight.BOLD)
+                            ft.Text(f"R$ {total_saidas:.2f}", size=12, color="#E53935", weight=ft.FontWeight.BOLD)
                         ], alignment=ft.MainAxisAlignment.CENTER, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
                         bgcolor="#222222", padding=8, border_radius=10, expand=True
                     ),
                     ft.Container(
                         content=ft.Column([
                             ft.Text("SALDO", size=10, color="#AAAAAA", weight=ft.FontWeight.BOLD),
-                            ft.Text(f"R$ {saldo:.2f}", size=12, color="blue", weight=ft.FontWeight.BOLD)
+                            ft.Text(f"R$ {saldo:.2f}", size=12, color="#42A5F5", weight=ft.FontWeight.BOLD)
                         ], alignment=ft.MainAxisAlignment.CENTER, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
                         bgcolor="#222222", padding=8, border_radius=10, expand=True
                     )
@@ -280,7 +293,7 @@ def main(page: ft.Page):
                 componentes_resumo.append(cards_row)
 
                 componentes_resumo.append(ft.Container(height=5))
-                componentes_resumo.append(ft.Text("📋 Toque em uma categoria para ver os dias/gastos", size=12, color="#AAAAAA"))
+                componentes_resumo.append(ft.Text("📋 Toque em uma categoria para ver o extrato detalhado", size=12, color="#AAAAAA"))
                 
                 df_agrupado = df.groupby(["Tipo", "Categoria"])["Valor"].sum().reset_index()
                 for _, row in df_agrupado.iterrows():
@@ -292,12 +305,12 @@ def main(page: ft.Page):
                     item_agrupado = ft.Container(
                         content=ft.Row([
                             ft.Row([
-                                ft.Container(width=10, height=10, bgcolor=cor_badge, border_radius=5),
-                                ft.Text(f"[{t_cat}] {n_cat}", size=12, weight=ft.FontWeight.W_500)
+                                ft.Container(width=12, height=12, bgcolor=cor_badge, border_radius=6),
+                                ft.Text(f"[{t_cat}] {n_cat}", size=13, weight=ft.FontWeight.W_500)
                             ], spacing=8),
-                            ft.Text(f"R$ {val_cat:.2f}", size=12, weight=ft.FontWeight.BOLD, color=cor_badge)
+                            ft.Text(f"R$ {val_cat:.2f}", size=13, weight=ft.FontWeight.BOLD, color=cor_badge)
                         ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
-                        padding=10,
+                        padding=12,
                         bgcolor="#1E1E1E",
                         border_radius=8,
                         margin=ft.margin.only(bottom=4),
@@ -392,7 +405,6 @@ def main(page: ft.Page):
 
 if __name__ == "__main__":
     ft.app(target=main, port=8550, host="0.0.0.0")
-
 
 
 
